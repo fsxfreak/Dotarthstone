@@ -21,8 +21,14 @@ public abstract class Hero extends Character
 	}
 
 	protected abstract void heroPower(Character target);
-	protected void addArmor(int amount) {}
+	protected void addArmor(int amount) { armor += amount}
 	protected void useCard(Card card) {}
 
-	public void doAction(Action[] actions) {}
+	public void doAction(Action[] actions) 
+	{
+		for (Action act : actions)
+		{
+			//parse actions, call appropriate functions with their parameters
+		}
+	}
 }

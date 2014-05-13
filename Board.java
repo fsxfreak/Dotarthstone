@@ -5,23 +5,33 @@ public static class Board
 	public ArrayList<Character> left;
 	public ArrayList<Character> right;
 
-	public static ArrayList<Character> getCards(Hero forHero)
+	public static ArrayList<Card> getCards(Hero forHero)
 	{
-		if (left.equals(forHero))
+		ArrayList<Card> cards = null;
+
+		if (left.get(0).equals(forHero))
 		{
-			ArrayList<Character> cards = new ArrayList<Character>(left);
+			cards = (ArrayList<Card>)left.clone();
 			cards.remove(0);
-			return cards;
 		}
-		else if (right.equals(forHero))
+		else if (right.get(0).equals(forHero))
 		{
-			ArrayList<Character> cards = new ArrayList<Character>(right);
+			cards = (ArrayList<Card>)right.clone();
 			cards.remove(0);
-			return cards;
 		}
 
-		return null;
+		return cards;
 	}
+
+	public static ArrayList<Card> getAllCards()
+	{
+		ArrayList<Card> leftCards = getCards(left);
+		ArrayList<Card> rightCards = getCards(right);
+
+		leftCards.addAll(rightCards);
+
+		return leftCards;
+	} 
 
 	public static void remove(Character character)
 	{

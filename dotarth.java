@@ -4,7 +4,7 @@ import java.time.ZoneId;
 public class dotarth
 {
 	/**
-		dotarth [email@domain] [password] [(check-inbox-every) seconds]
+	*	dotarth [email@domain] [password] [(check-inbox-every) seconds]
 	*/
 	public static void main(String[] args)
 	{
