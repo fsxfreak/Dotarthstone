@@ -3,7 +3,8 @@ import java.util.ArrayList;
 public abstract class Card extends Character
 {
 	protected int manaCost;
-	protected ArrayList<Effect> effects;
+	protected String name;
+	protected ArrayList<Type> effects;
 
 	public Card(String name, int health, int damage, int manaCost)
 	{
@@ -11,6 +12,6 @@ public abstract class Card extends Character
 		this.manaCost = manaCost;
 	}
 
-	public void addEffect(Effect effect) { effects.add(effect); }
-
+	protected void addEffect(Type effect) { effects.add(effect); }
+	public String getName() { return name; }
 }

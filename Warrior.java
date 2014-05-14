@@ -8,6 +8,13 @@ public class Warrior extends Hero
 				 , ArrayList<Card> initialCards)
 	{
 		super(name, health, damage, armor, mana, initialCards);
+		constructDeck();
+	}
+
+	private void constructDeck()
+	{
+		//TODO - construct deck of 25 cards from default cards
+		//deck.add()
 	}
 
 	protected void heroPower(Character target)
@@ -15,4 +22,6 @@ public class Warrior extends Hero
 		target.hurt(2);
 		hurt(target.getDamage());
 	}
+
+
 }

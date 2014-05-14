@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 public static class Board
 {
+	//0th index contains the hero that owns the cards on the board
 	public ArrayList<Character> left;
 	public ArrayList<Character> right;
 

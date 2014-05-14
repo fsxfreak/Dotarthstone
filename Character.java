@@ -5,6 +5,8 @@ public abstract class Character
 	protected int maxHealth;
 	protected int damage;
 
+	protected abstract void checkEffects();
+
 	public Character(String name, int health, int damage)
 	{
 		this.name = name;
@@ -19,11 +21,13 @@ public abstract class Character
 		hurt(target.getDamage());
 	}
 
-	public void hurt(int amount) 
+	public void hurt(int amount, Card origin) 
 	{ 
 		health -= amount; 
 		if (health <= 0)
 			Board.remove(this);
+
+		checkEffects();
 	}
 
 	public void heal(int amount) 

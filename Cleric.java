@@ -10,9 +10,13 @@ public class Cleric extends Hero
 		super(name, health, damage, armor, mana, initialCards);
 	}
 
+	private void constructDeck()
+	{
+		
+	}
+
 	protected void heroPower(Character target)
 	{
-		target.hurt(2);
-		hurt(target.getDamage());
+		target.heal(2);
 	}
 }

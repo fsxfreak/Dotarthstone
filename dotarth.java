@@ -21,7 +21,7 @@ public class dotarth
 			if (clock.instant().compareTo(fromTime.plus(interval, ChronoUnit.SECONDS)) >= 0)
 			{
 				fromTime = clock.instant();
-				game.parseEmail();
+				game.runGame();
 			}
 				
 		}
