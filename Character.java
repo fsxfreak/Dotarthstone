@@ -1,3 +1,5 @@
+package com.aplc.dotarthstone;
+
 public abstract class Character 
 {
 	protected String name;
@@ -5,7 +7,7 @@ public abstract class Character
 	protected int maxHealth;
 	protected int damage;
 
-	protected abstract void checkEffects();
+	//protected abstract void checkEffects();
 
 	public Character(String name, int health, int damage)
 	{
@@ -17,17 +19,15 @@ public abstract class Character
 
 	public void attack(Character target)
 	{
-		target.hurt(damage);
-		hurt(target.getDamage());
+		target.hurt(damage, this);
+		hurt(target.getDamage(), target);
 	}
 
-	public void hurt(int amount, Card origin) 
+	public void hurt(int amount, Character origin) 
 	{ 
 		health -= amount; 
 		if (health <= 0)
 			Board.remove(this);
-
-		checkEffects();
 	}
 
 	public void heal(int amount) 
@@ -39,4 +39,5 @@ public abstract class Character
 
 	public int getHealth() { return health; }
 	public int getDamage() { return damage; }
+	public String getName() { return name; }
 }

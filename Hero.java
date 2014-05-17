@@ -1,3 +1,5 @@
+package com.aplc.dotarthstone;
+
 import java.util.ArrayList;
 
 public abstract class Hero extends Character
@@ -9,30 +11,25 @@ public abstract class Hero extends Character
 	protected ArrayList<Card> cardsInHand;
 	protected ArrayList<Card> deck;
 
-	public Hero(String name
-			  , int health
-			  , int damage
-			  , int armor
-			  , int mana
-			  , ArrayList<Card> initialCards)
+	public Hero(String name)
 	{
-		super(name, health, damage)
+		super(name, 30, 0);
 
-		this.armor = armor;
-		this.mana = mana;
-		cardsInHand = initialCards;
+		this.mana = 1;
+		deck = new ArrayList<Card>();
+		cardsInHand = new ArrayList<Card>();
 	}
 
 	protected abstract void constructDeck();
 	protected abstract void heroPower(Character target);
-	protected void addArmor(int amount) { armor += amount}
+	protected void addArmor(int amount) { armor += amount; }
 	protected void useCard(Card card) {}
 
 	public void awardCards(int numCards)
 	{
 		for (int i = 0; i < numCards; i++)
 		{
-			int cardIndex = Math.random() * deck.size();
+			int cardIndex = (int)(Math.random() * deck.size());
 			cardsInHand.add(deck.get(cardIndex));
 			deck.remove(deck.get(cardIndex));
 		}
@@ -43,7 +40,7 @@ public abstract class Hero extends Character
 		//TODO check correctness
 		if (cardName.equals("Coin"))
 		{
-			cardsInHand.add(new Coin());
+			cardsInHand.add(new Card("Coin", 0, 0, 0));
 		}
 
 		for (Card e : deck)
@@ -62,5 +59,12 @@ public abstract class Hero extends Character
 		{
 			//parse actions, call appropriate functions with their parameters
 		}
+	}
+	
+	public void giveMana(int amount)
+	{
+		mana += amount;
+		if (mana > 10)
+			mana = 10;
 	}
 }

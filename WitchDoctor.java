@@ -1,31 +1,53 @@
+package com.aplc.dotarthstone;
+
+import java.util.ArrayList;
+
 public class WitchDoctor extends Hero
 {
-	public WitchDoctor(String name
-				 , int health
-				 , int damage
-				 , int armor
-				 , int mana
-				 , ArrayList<Card> initialCards)
-	{
-		super(name, health, damage, armor, mana, initialCards);
-	}
+    public static ArrayList<Card> witchDoctorCards;
 
-	private void constructDeck()
-	{
-		
-	}
+    public WitchDoctor()
+    {
+        super("Witch Doctor");
+        constructDeck();
+    }
 
-	protected void heroPower(Character target)
-	{
-		ArrayList<Card> myCards = board.getCards(this);
-		ArrayList<Card> otherCards = board.getCards(this);
-		if (myCards.contains(target))
-		{
-			target.heal(1);
-		}
-		else if (otherCards.contains(target))
-		{
-			target.hurt(1);
-		}
-	}
+    protected void constructDeck()
+    {
+        if (witchDoctorCards == null || witchDoctorCards.size() <= 0)
+            buildCards();
+        if (NeutralCards.cards == null || NeutralCards.cards.size() <= 0)
+            NeutralCards.buildCards();
+
+        ArrayList<Card> pool = new ArrayList<Card>();
+        pool.addAll(witchDoctorCards);
+        pool.addAll(NeutralCards.cards);
+
+        int max = pool.size();
+        for (int i = 0; i < 25; i++)
+        {
+            int randIndex = (int)(Math.random() * max);
+            deck.add(pool.get(randIndex));
+        }
+    }
+
+    protected void heroPower(Character target)
+    {
+        ArrayList<Card> myCards = Board.getCards(this);
+        ArrayList<Card> otherCards = Board.getCards(this);
+        if (myCards.contains(target))
+        {
+            target.heal(1);
+        }
+        else if (otherCards.contains(target))
+        {
+            target.hurt(1, this);
+        }
+    }
+
+    public static void buildCards()
+    {
+        witchDoctorCards = new ArrayList<Card>();
+        //TODO add spells
+    }
 }

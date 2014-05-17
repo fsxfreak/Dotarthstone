@@ -1,10 +1,11 @@
+package com.aplc.dotarthstone;
+
 import java.util.ArrayList;
 
-public abstract class Card extends Character
+public class Card extends Character
 {
-	protected int manaCost;
-	protected String name;
-	protected ArrayList<Type> effects;
+	private int manaCost;
+	private ArrayList<Type> effects;
 
 	public Card(String name, int health, int damage, int manaCost)
 	{
@@ -13,5 +14,4 @@ public abstract class Card extends Character
 	}
 
 	protected void addEffect(Type effect) { effects.add(effect); }
-	public String getName() { return name; }
 }

@@ -1,3 +1,5 @@
+package com.aplc.dotarthstone;
+
 public class Action
 {
 	public String functionName;

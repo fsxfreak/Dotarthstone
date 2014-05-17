@@ -1,11 +1,14 @@
+package com.aplc.dotarthstone;
+
 import java.util.ArrayList;
 
-public static class Board
+public class Board
 {
 	//0th index contains the hero that owns the cards on the board
-	public ArrayList<Character> left;
-	public ArrayList<Character> right;
+	public static ArrayList<Character> left;
+	public static ArrayList<Character> right;
 
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Card> getCards(Hero forHero)
 	{
 		ArrayList<Card> cards = null;
@@ -26,8 +29,8 @@ public static class Board
 
 	public static ArrayList<Card> getAllCards()
 	{
-		ArrayList<Card> leftCards = getCards(left);
-		ArrayList<Card> rightCards = getCards(right);
+		ArrayList<Card> leftCards = getCards((Hero)left.get(0));
+		ArrayList<Card> rightCards = getCards((Hero)right.get(0));
 
 		leftCards.addAll(rightCards);
 

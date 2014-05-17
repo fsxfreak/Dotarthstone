@@ -1,5 +1,4 @@
-import java.time.Clock;
-import java.time.ZoneId;
+package com.aplc.dotarthstone;
 
 public class dotarth
 {
@@ -8,19 +7,20 @@ public class dotarth
 	*/
 	public static void main(String[] args)
 	{
-		String email = args[1];
-		String password = args[2];
-		int interval = Integer.parseInt(args[3]);
-
-		Game game = new Game(email, pass);
-		Clock clock = Clock.tickSeconds(ZoneId.systemDefault());
-		Instant fromTime = clock.instant().minus(interval, ChronoUnit.SECONDS);
-
+		String email = args[0];
+		String password = args[1];
+		int intervalMilliseconds = Integer.parseInt(args[2]) * 1000;
+		
+		Game game = new Game(email, password);
+		game.sendEmail("leonjcheung@gmail.com", "dotarthstone", "test");
+		
+		long lastMilliTime = System.currentTimeMillis() - intervalMilliseconds;
+			
 		while (true)
 		{
-			if (clock.instant().compareTo(fromTime.plus(interval, ChronoUnit.SECONDS)) >= 0)
+			if (lastMilliTime + intervalMilliseconds <= System.currentTimeMillis())
 			{
-				fromTime = clock.instant();
+				lastMilliTime = System.currentTimeMillis();
 				game.runGame();
 			}
 				
