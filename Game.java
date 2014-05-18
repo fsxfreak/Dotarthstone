@@ -270,8 +270,6 @@ public class Game
 			return;
 		}
 
-		System.out.println("before isleftturn");
-		
 		if (isLeftTurn)
 		{
 			if (!waitingForTurn)
@@ -280,56 +278,14 @@ public class Game
 				left.setMana(currentTurn);
 				waitingForTurn = true;
 				
-				String message = "Your hand: ";
-				ArrayList<Card> cards = left.getHand();
-				for (Card e : cards)
-				{
-					message += e.getCardInfo() + ", ";
-				}
-				message += "\nMana: " + left.getMana();
-				message += "\nYour side of the board: ";
-				ArrayList<Card> yourCards = Board.getCards(left);
-				for (Card e : yourCards)
-				{
-					message += e.getCardInfo() + ", ";
-				}
-				message += "\nTheir side of the board: ";
-				ArrayList<Card> otherCards = Board.getCards(right);
-				for (Card e : otherCards)
-				{
-					message += e.getCardInfo() + ", ";
-				}
+				String message = constructMessage();
 				
 				sendEmail(left.email, "dotarthstone - Your Turn",  message);
 			}
 				
 			if (emailCommands.containsKey("leftactions"))
 			{
-				ArrayList<Action> actions = new ArrayList<Action>();
-				
-				String[] acts = emailCommands.get("leftactions").split(" ");
-				for (int i = 0; i < acts.length; i++)
-				{
-					if (acts[i].equals("playcard"))
-					{
-						actions.add(new Action("playcard", new String[] { acts[i + 1] }));
-						i += 1;
-					}
-					else if (acts[i].equals("hurt"))
-					{
-						actions.add(new Action("hurt", new String[] { acts[i + 1], acts[i + 2] }));
-						i += 2;
-					}
-					else if (acts[i].equals("heropower"))
-					{
-						actions.add(new Action("heropower", new String[] { acts[i + 1] }));
-						i += 1;
-					}
-					else if (acts[i].equals("end"))
-					{
-						actions.add(new Action("end", new String[] {}));
-					}
-				}
+				ArrayList<Action> actions = buildActions(emailCommands.get("leftactions").split(" "));
 				
 				left.doAction(actions);
 				emailCommands.remove("leftactions");
@@ -354,65 +310,23 @@ public class Game
 				right.setMana(currentTurn);
 				waitingForTurn = true;
 				
-				String message = "Your hand: ";
-				ArrayList<Card> cards = right.getHand();
-				for (Card e : cards)
-				{
-					message += e.getName() + ", ";
-				}
-				message += "\nMana: " + right.getMana();
-				message += "\nYour side of the board: ";
-				ArrayList<Card> yourCards = Board.getCards(right);
-				for (Card e : yourCards)
-				{
-					message += e.getName() + ", ";
-				}
-				message += "\nTheir side of the board: ";
-				ArrayList<Card> otherCards = Board.getCards(left);
-				for (Card e : otherCards)
-				{
-					message += e.getName() + ", ";
-				}
+				String message = constructMessage();
 				
 				sendEmail(right.email, "dotarthstone - Your Turn",  message);
 			}
+			
 			if (emailCommands.containsKey("rightactions"))
 			{
-				ArrayList<Action> actions = new ArrayList<Action>();
-				
-				String[] acts = emailCommands.get("rightactions").split(" ");
-				for (int i = 0; i < acts.length; i++)
-				{
-					if (acts[i].equals("use"))
-					{
-						actions.add(new Action("playcard", new String[] { acts[i + 1] }));
-						i += 1;
-					}
-					else if (acts[i].equals("hurt"))
-					{
-						actions.add(new Action("hurt", new String[] { acts[i + 1], acts[i + 2] }));
-						i += 2;
-					}
-					else if (acts[i].equals("heropower"))
-					{
-						actions.add(new Action("heropower", new String[] { acts[i + 1] }));
-						i += 1;
-					}
-					else if (acts[i].equals("end"))
-					{
-						actions.add(new Action("playcard", new String[] {}));
-					}
-				}
+				ArrayList<Action> actions = buildActions(emailCommands.get("rightactions").split(" "));
 				
 				right.doAction(actions);
 				emailCommands.remove("rightactions");
-				
-				if (right.endTurn)
-				{
-					waitingForTurn = false;
-					isLeftTurn = true;
-					right.endTurn = false;
-				}
+			}
+			else if (right.endTurn)
+			{
+				waitingForTurn = false;
+				isLeftTurn = true;
+				right.endTurn = false;
 			}
 			else
 			{
@@ -423,5 +337,83 @@ public class Game
 		
 		if (isLeftTurn)
 			currentTurn++;
+	}
+	
+	private ArrayList<Action> buildActions(String[] acts)
+	{
+		ArrayList<Action> actions = new ArrayList<Action>();
+		
+		for (String e : acts)
+		{
+			System.out.println(e);
+		}
+		
+		for (int i = 0; i < acts.length; i++)
+		{
+			if (acts[i].replaceAll("\\s+", "").equals("playcard"))
+			{
+				actions.add(new Action("playcard", new String[] { acts[i + 1] }));
+			}
+			else if (acts[i].replaceAll("\\s+", "").equals("hurt"))
+			{
+				actions.add(new Action("hurt", new String[] { acts[i + 1], acts[i + 2] }));
+			}
+			else if (acts[i].replaceAll("\\s+", "").equals("heropower"))
+			{
+				actions.add(new Action("heropower", new String[] { acts[i + 1] }));
+			}
+			else if (acts[i].replaceAll("\\s+", "").equals("end"))
+			{
+				actions.add(new Action("end", new String[] {}));
+				System.out.println("adding end");
+			}
+		}
+		
+		return actions;
+	}
+	
+	private String constructMessage()
+	{
+		String message = "Your hand: ";
+		
+		ArrayList<Card> cards = null;
+		if (isLeftTurn)
+			cards = left.getHand();
+		else
+			cards = right.getHand();
+		
+		for (Card e : cards)
+		{
+			message += e.getCardInfo() + ", ";
+		}
+		
+		if (isLeftTurn)
+			message += "\nMana: " + left.getMana();
+		else
+			message += "\nMana: " + right.getMana();
+		
+		message += "\nYour side of the board: ";
+		ArrayList<Card> yourCards = null;
+		if (isLeftTurn)
+			yourCards = Board.getCards(left);
+		else
+			yourCards = Board.getCards(right);
+		for (Card e : yourCards)
+		{
+			message += e.getCardInfo() + ", ";
+		}
+		
+		message += "\nTheir side of the board: ";
+		ArrayList<Card> otherCards = null;
+		if (isLeftTurn)
+			otherCards = Board.getCards(right);
+		else
+			otherCards = Board.getCards(left);
+		for (Card e : otherCards)
+		{
+			message += e.getCardInfo() + ", ";
+		}
+		
+		return message;
 	}
 }

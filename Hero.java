@@ -74,12 +74,17 @@ public abstract class Hero extends Character
 	{
 		for (Action act : actions)
 		{
+			System.out.println(act.functionName);
+			
 			if (act.functionName.equals("playcard"))
 			{
+				System.out.println("Playing card: " + act.args[0]);
 				useCard(act.args[0]);
 			}
 			else if (act.functionName.equals("hurt"))
 			{
+				System.out.println("Damaging: " + act.args[1] + " with " + act.args[0]);
+				
 				String originName = act.args[0];
 				String target = act.args[1];
 				
@@ -102,6 +107,8 @@ public abstract class Hero extends Character
 			}
 			else if (act.functionName.equals("heropower"))
 			{
+				System.out.println("hero powering " + act.args[0]);
+				
 				ArrayList<Character> everything = Board.getEverything();
 				for (Character e : everything)
 				{
@@ -114,6 +121,7 @@ public abstract class Hero extends Character
 			else if (act.functionName.equals("end"))
 			{
 				endTurn = true;
+				System.out.println("Ending turn.");
 			}
 		}
 	}
