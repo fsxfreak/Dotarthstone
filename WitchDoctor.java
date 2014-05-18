@@ -6,9 +6,9 @@ public class WitchDoctor extends Hero
 {
     public static ArrayList<Card> witchDoctorCards;
 
-    public WitchDoctor()
+    public WitchDoctor(boolean leftSide)
     {
-        super("Witch Doctor");
+        super("Witch Doctor", leftSide);
         constructDeck();
     }
 
@@ -33,8 +33,8 @@ public class WitchDoctor extends Hero
 
     protected void heroPower(Character target)
     {
-        ArrayList<Card> myCards = Board.getCards(this);
-        ArrayList<Card> otherCards = Board.getCards(this);
+        ArrayList<Card> myCards = Board.getCards(isLeftSide);
+        ArrayList<Card> otherCards = Board.getCards(!isLeftSide);
         if (myCards.contains(target))
         {
             target.heal(1);

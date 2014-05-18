@@ -10,4 +10,11 @@ public class Action
 		functionName = name;
 		args = arguments;
 	}
+	/*
+	 * Valid actions
+	 * playcard [card]
+	 * hurt [origin] [target]
+	 * heropower [target]
+	 * end
+	 */
 }

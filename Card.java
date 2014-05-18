@@ -14,4 +14,9 @@ public class Card extends Character
 	}
 
 	protected void addEffect(Type effect) { effects.add(effect); }
+	
+	public String getCardInfo()
+	{
+		return getName() + "[" + health + ", " + damage + "]";
+	}
 }

@@ -1,6 +1,8 @@
 package com.aplc.dotarthstone;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -151,7 +153,6 @@ public class Game
 	
 	//this should be the big dog
 	//come up with actions and verify if actions are valid
-	@SuppressWarnings("null")
 	public void parseEmail() 
 	{
 		Message[] messages = readEmail();
@@ -159,41 +160,39 @@ public class Game
 		{
 			try 
 			{
+				String sender = getEmailFromSender(e.getFrom()[0]);
+				String leftEmail = null;
+				String rightEmail = null;
+				if (emailCommands.get("register") != null)
+				{
+					leftEmail = emailCommands.get("register").split(" ")[0].replaceAll("\\s+", "");
+					rightEmail = emailCommands.get("register").split(" ")[1].replaceAll("\\s+", "");
+				}
+
 				//assume all input is sane. school project, so I AINT GOT TIME FO DAT
-				if (((String)(e.getSubject())).equals("leftHero"))
+				if (emailCommands.get("register") != null)
 				{
-					String sender = getEmailFromSender(e.getFrom()[0]);
-					String leftEmail = emailCommands.get("register").split(" ")[0];
-					System.out.println("Sender: " + sender + " Email:" + leftEmail);
-					
-					if (!(sender.equals(leftEmail)))
+					if (((String)(e.getSubject())).contains("left"))
 					{
-						System.out.println(e.getSubject());
-						System.out.println(sender + " trying to register as " + leftEmail);
-						e.setFlag(Flags.Flag.DELETED, true);
-						continue;
+						if (!(sender.equals(leftEmail)))
+						{
+							e.setFlag(Flags.Flag.DELETED, true);
+							continue;
+						}
+					}
+					if (((String)(e.getSubject())).contains("right"))
+					{
+						if (!(sender.equals(rightEmail)))
+						{
+							e.setFlag(Flags.Flag.DELETED, true);
+							continue;
+						}
 					}
 				}
-				if (((String)(e.getSubject())).equals("rightHero"))
-				{
-					String sender = getEmailFromSender(e.getFrom()[0]);
-					String rightEmail = emailCommands.get("register").split(" ")[1];
-					System.out.println("Sender: " + sender + " Email:" + rightEmail);
-					
-					if (!(sender.equals(rightEmail)))
-					{
-						System.out.println(e.getSubject());
-						System.out.println(sender + " trying to register as " + rightEmail);
-						e.setFlag(Flags.Flag.DELETED, true);
-						continue;
-					}
-				}
-					
 				
-				emailCommands.put((String)(e.getSubject()).toLowerCase(), (String)(getText(e)));
+				emailCommands.put((String)(e.getSubject()).toLowerCase().replaceAll("\n","")
+								, (String)(getText(e)).replaceAll("\n",""));
 				e.setFlag(Flags.Flag.DELETED, true);
-				
-				readStore.close();
 			}
 			catch (Exception except) 
 			{
@@ -209,6 +208,11 @@ public class Game
 		right.awardCards(4);
 		right.awardCards("Coin");
 		
+		Board.left = new ArrayList<Character>();
+		Board.left.add(left);
+		Board.right = new ArrayList<Character>();
+		Board.right.add(right);
+		
 		System.out.println("Starting game with heroes: " 
 						+ left.getName() + " and "
 						+ right.getName() + ".");
@@ -219,36 +223,41 @@ public class Game
 	public void runGame() 
 	{
 		parseEmail();
+		try {
+			readStore.close();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
 		
 		if (emailCommands.containsKey("register") 
-		 && emailCommands.containsKey("leftHero")
-		 && emailCommands.containsKey("rightHero"))
+		 && emailCommands.containsKey("lefthero")
+		 && emailCommands.containsKey("righthero"))
 		{
 			String[] emails = emailCommands.get("register").split(" ");
-			String leftHeroChoice = emailCommands.get("leftHero");
-			String rightHeroChoice = emailCommands.get("rightHero");
+			String leftHeroChoice = emailCommands.get("lefthero").replaceAll("\\s++", "");
+			String rightHeroChoice = emailCommands.get("righthero").replaceAll("\\s++", "");
 			
-			if (leftHeroChoice.equalsIgnoreCase("witchDoctor"))
-				left = new WitchDoctor();
+			if (leftHeroChoice.equalsIgnoreCase("witchdoctor"))
+				left = new WitchDoctor(true);
 			else if (leftHeroChoice.equalsIgnoreCase("cleric"))
-				left = new Cleric();
+				left = new Cleric(true);
 			else if (leftHeroChoice.equalsIgnoreCase("warrior"))
-				left = new Warrior();
+				left = new Warrior(true);
 			left.email = emails[0];
 			
-			if (rightHeroChoice.equalsIgnoreCase("witchDoctor"))
-				right = new WitchDoctor();
+			if (rightHeroChoice.equalsIgnoreCase("witchdoctor"))
+				right = new WitchDoctor(false);
 			else if (rightHeroChoice.equalsIgnoreCase("cleric"))
-				right = new Cleric();
+				right = new Cleric(false);
 			else if (rightHeroChoice.equalsIgnoreCase("warrior"))
-				right = new Warrior();
+				right = new Warrior(false);
 			right.email = emails[1];
 			
 			startGame();
 			
 			emailCommands.remove("register");
-			emailCommands.remove("leftHero");
-			emailCommands.remove("rightHero");
+			emailCommands.remove("lefthero");
+			emailCommands.remove("righthero");
 			return;
 		}
 		else if (currentTurn == 0)
@@ -256,7 +265,8 @@ public class Game
 			//this means we dont have a register or hero pick
 			//and that we havent started game yet, so we wait
 			System.out.println(emailCommands.get("register"));
-			System.out.println("Waiting");
+			System.out.println(emailCommands.get("lefthero"));
+			System.out.println(emailCommands.get("righthero"));
 			return;
 		}
 
@@ -267,16 +277,68 @@ public class Game
 			if (!waitingForTurn)
 			{
 				left.awardCards(1);
+				left.setMana(currentTurn);
 				waitingForTurn = true;
+				
+				String message = "Your hand: ";
+				ArrayList<Card> cards = left.getHand();
+				for (Card e : cards)
+				{
+					message += e.getCardInfo() + ", ";
+				}
+				message += "\nMana: " + left.getMana();
+				message += "\nYour side of the board: ";
+				ArrayList<Card> yourCards = Board.getCards(left);
+				for (Card e : yourCards)
+				{
+					message += e.getCardInfo() + ", ";
+				}
+				message += "\nTheir side of the board: ";
+				ArrayList<Card> otherCards = Board.getCards(right);
+				for (Card e : otherCards)
+				{
+					message += e.getCardInfo() + ", ";
+				}
+				
+				sendEmail(left.email, "dotarthstone - Your Turn",  message);
 			}
 				
-			if (emailCommands.contains("leftActions"))
+			if (emailCommands.containsKey("leftactions"))
 			{
-				//Action[] actions = ssdfdsf;
-				//left.doAction(actions);
+				ArrayList<Action> actions = new ArrayList<Action>();
+				
+				String[] acts = emailCommands.get("leftactions").split(" ");
+				for (int i = 0; i < acts.length; i++)
+				{
+					if (acts[i].equals("playcard"))
+					{
+						actions.add(new Action("playcard", new String[] { acts[i + 1] }));
+						i += 1;
+					}
+					else if (acts[i].equals("hurt"))
+					{
+						actions.add(new Action("hurt", new String[] { acts[i + 1], acts[i + 2] }));
+						i += 2;
+					}
+					else if (acts[i].equals("heropower"))
+					{
+						actions.add(new Action("heropower", new String[] { acts[i + 1] }));
+						i += 1;
+					}
+					else if (acts[i].equals("end"))
+					{
+						actions.add(new Action("end", new String[] {}));
+					}
+				}
+				
+				left.doAction(actions);
+				emailCommands.remove("leftactions");
+			}
+			else if (left.endTurn)
+			{
 				waitingForTurn = false;
-				emailCommands.remove("leftActions");
 				isLeftTurn = false;
+				left.endTurn = false;
 			}
 			else
 			{
@@ -289,15 +351,68 @@ public class Game
 			if (!waitingForTurn)
 			{
 				right.awardCards(1);
+				right.setMana(currentTurn);
 				waitingForTurn = true;
+				
+				String message = "Your hand: ";
+				ArrayList<Card> cards = right.getHand();
+				for (Card e : cards)
+				{
+					message += e.getName() + ", ";
+				}
+				message += "\nMana: " + right.getMana();
+				message += "\nYour side of the board: ";
+				ArrayList<Card> yourCards = Board.getCards(right);
+				for (Card e : yourCards)
+				{
+					message += e.getName() + ", ";
+				}
+				message += "\nTheir side of the board: ";
+				ArrayList<Card> otherCards = Board.getCards(left);
+				for (Card e : otherCards)
+				{
+					message += e.getName() + ", ";
+				}
+				
+				sendEmail(right.email, "dotarthstone - Your Turn",  message);
 			}
-			if (emailCommands.contains("rightActions"))
+			if (emailCommands.containsKey("rightactions"))
 			{
-				//Action[] actions = ssdfdsf;
-				//left.doAction(actions);
-				waitingForTurn = false;
-				emailCommands.remove("rightActions");
-				isLeftTurn = true;
+				ArrayList<Action> actions = new ArrayList<Action>();
+				
+				String[] acts = emailCommands.get("rightactions").split(" ");
+				for (int i = 0; i < acts.length; i++)
+				{
+					if (acts[i].equals("use"))
+					{
+						actions.add(new Action("playcard", new String[] { acts[i + 1] }));
+						i += 1;
+					}
+					else if (acts[i].equals("hurt"))
+					{
+						actions.add(new Action("hurt", new String[] { acts[i + 1], acts[i + 2] }));
+						i += 2;
+					}
+					else if (acts[i].equals("heropower"))
+					{
+						actions.add(new Action("heropower", new String[] { acts[i + 1] }));
+						i += 1;
+					}
+					else if (acts[i].equals("end"))
+					{
+						actions.add(new Action("playcard", new String[] {}));
+					}
+				}
+				
+				right.doAction(actions);
+				emailCommands.remove("rightactions");
+				
+				if (right.endTurn)
+				{
+					waitingForTurn = false;
+					isLeftTurn = true;
+					right.endTurn = false;
+				}
 			}
 			else
 			{
@@ -305,8 +420,6 @@ public class Game
 				return;
 			}
 		}
-
-		System.out.println("before incrementturn");
 		
 		if (isLeftTurn)
 			currentTurn++;

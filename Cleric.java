@@ -6,9 +6,9 @@ public class Cleric extends Hero
 {
     public static ArrayList<Card> clericCards;
 
-    public Cleric()
+    public Cleric(boolean leftSide)
     {
-        super("Cleric");
+        super("Cleric", leftSide);
         constructDeck();
     }
 

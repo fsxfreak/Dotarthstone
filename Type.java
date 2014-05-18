@@ -1,6 +1,5 @@
 package com.aplc.dotarthstone;
 
-
 //unused for now
 public abstract class Type
 {

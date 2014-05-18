@@ -6,9 +6,9 @@ public class Warrior extends Hero
 {
     public static ArrayList<Card> warriorCards;
 
-    public Warrior()
+    public Warrior(boolean leftSide)
     {
-        super("Warrior");
+        super("Warrior", leftSide);
         constructDeck();
     }
 

@@ -26,6 +26,24 @@ public class Board
 
 		return cards;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static ArrayList<Card> getCards(boolean forLeftSide)
+	{
+		ArrayList<Card> cards = null;
+		
+		if (forLeftSide)
+		{
+			cards = (ArrayList<Card>)left.clone();
+			cards.remove(0);
+		}
+		else
+		{
+			cards = (ArrayList<Card>)right.clone();
+			cards.remove(0);
+		}
+		return cards;
+	}
 
 	public static ArrayList<Card> getAllCards()
 	{
@@ -35,7 +53,16 @@ public class Board
 		leftCards.addAll(rightCards);
 
 		return leftCards;
-	} 
+	}
+	
+	public static ArrayList<Character> getEverything()
+	{
+		ArrayList<Character> everything = new ArrayList<Character>();
+		everything.addAll(left);
+		everything.addAll(right);
+		
+		return everything;
+	}
 
 	public static void remove(Character character)
 	{
@@ -50,5 +77,13 @@ public class Board
 
 		left.remove(character);
 		right.remove(character);
+	}
+	
+	public static void addCard(Card card, boolean forSide)
+	{
+		if (forSide)
+			left.add(card);
+		else
+			right.add(card);
 	}
 }
