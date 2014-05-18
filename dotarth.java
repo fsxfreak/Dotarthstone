@@ -12,7 +12,6 @@ public class dotarth
 		int intervalMilliseconds = Integer.parseInt(args[2]) * 1000;
 		
 		Game game = new Game(email, password);
-		game.sendEmail("leonjcheung@gmail.com", "dotarthstone", "test");
 		
 		long lastMilliTime = System.currentTimeMillis() - intervalMilliseconds;
 			
