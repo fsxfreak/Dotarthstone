@@ -8,7 +8,7 @@ public class Cleric extends Hero
 
     public Cleric(boolean leftSide)
     {
-        super("Cleric", leftSide);
+        super("cleric", leftSide);
         constructDeck();
     }
 

@@ -33,13 +33,21 @@ public abstract class Hero extends Character
 	protected void useCard(String card) 
 	{
 		boolean haveCard = false;
+		Card usedCard = null;
 		for (Card e : cardsInHand)
 		{
 			if (e.getName().equals(card))
 			{
-				Board.addCard(e, isLeftSide);
+				if (mana - e.getManaCost() >= 0)
+				{
+					mana = mana - e.getManaCost();
+					Board.addCard(e, isLeftSide);
+					usedCard = e;
+					break;
+				}
 			}
 		}
+		cardsInHand.remove(usedCard);
 	}
 
 	public void awardCards(int numCards)
@@ -74,8 +82,6 @@ public abstract class Hero extends Character
 	{
 		for (Action act : actions)
 		{
-			System.out.println(act.functionName);
-			
 			if (act.functionName.equals("playcard"))
 			{
 				System.out.println("Playing card: " + act.args[0]);

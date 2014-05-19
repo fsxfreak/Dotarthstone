@@ -8,7 +8,7 @@ public class WitchDoctor extends Hero
 
     public WitchDoctor(boolean leftSide)
     {
-        super("Witch Doctor", leftSide);
+        super("witchdoctor", leftSide);
         constructDeck();
     }
 

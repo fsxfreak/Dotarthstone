@@ -17,6 +17,8 @@ public class Card extends Character
 	
 	public String getCardInfo()
 	{
-		return getName() + "[" + health + ", " + damage + "]";
+		return getName() + "[" + health + ", " + damage + ", " + manaCost + "]";
 	}
+	
+	public int getManaCost() { return manaCost; }
 }

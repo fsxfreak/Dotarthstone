@@ -27,6 +27,7 @@ public class Game
 	private Store readStore = null;
 	private Session sendSession = null;
 	private boolean textIsHtml = false;
+	private boolean alreadyRegistered = false;
 
 	public Game(final String email, final String password) 
 	{
@@ -47,7 +48,7 @@ public class Game
 
 	public void sendEmail(String emailTo, String subject, String messageText)
 	{
-		System.out.println("sending mail");
+		System.out.println("Sending mail with subject: " + subject + " to: " + emailTo);
 		
 		if (sendSession == null)
 		{
@@ -101,6 +102,18 @@ public class Game
 			e.printStackTrace();
 		}
 		
+		for (Message e : messages)
+		{
+			try
+			{
+				System.out.println("Receiving mail with the subject: " 
+					+ e.getSubject() + " from " + e.getFrom()[0]);
+			}
+			catch (MessagingException f)
+			{
+				f.printStackTrace();
+			}
+		}
 		return messages;	
 	}
 	
@@ -166,7 +179,7 @@ public class Game
 				if (emailCommands.get("register") != null)
 				{
 					leftEmail = emailCommands.get("register").split(" ")[0].replaceAll("\\s+", "");
-					rightEmail = emailCommands.get("register").split(" ")[1].replaceAll("\\s+", "");
+					rightEmail = emailCommands.get("register").split(" ")[1].replaceAll("\\s+", "");		
 				}
 
 				//assume all input is sane. school project, so I AINT GOT TIME FO DAT
@@ -229,6 +242,12 @@ public class Game
 			e.printStackTrace();
 		}
 		
+		if (emailCommands.containsKey("register"))
+		{
+			String[] emails = emailCommands.get("register").split(" ");
+			onRegister(emails[0], emails[1]);
+		}
+		
 		if (emailCommands.containsKey("register") 
 		 && emailCommands.containsKey("lefthero")
 		 && emailCommands.containsKey("righthero"))
@@ -264,9 +283,6 @@ public class Game
 		{
 			//this means we dont have a register or hero pick
 			//and that we havent started game yet, so we wait
-			System.out.println(emailCommands.get("register"));
-			System.out.println(emailCommands.get("lefthero"));
-			System.out.println(emailCommands.get("righthero"));
 			return;
 		}
 
@@ -280,7 +296,7 @@ public class Game
 				
 				String message = constructMessage();
 				
-				sendEmail(left.email, "dotarthstone - Your Turn",  message);
+				sendEmail(left.email, "Dotarthstone - Your turn",  message);
 			}
 				
 			if (emailCommands.containsKey("leftactions"))
@@ -298,7 +314,6 @@ public class Game
 			}
 			else
 			{
-				System.out.println("Waiting for left");
 				return;
 			}
 		}
@@ -312,7 +327,8 @@ public class Game
 				
 				String message = constructMessage();
 				
-				sendEmail(right.email, "dotarthstone - Your Turn",  message);
+				sendEmail(right.email, "Dotarthstone - Your Turn",  message);
+				currentTurn++;
 			}
 			
 			if (emailCommands.containsKey("rightactions"))
@@ -330,23 +346,14 @@ public class Game
 			}
 			else
 			{
-				System.out.println("Waiting for right");
 				return;
 			}
 		}
-		
-		if (isLeftTurn)
-			currentTurn++;
 	}
 	
 	private ArrayList<Action> buildActions(String[] acts)
 	{
 		ArrayList<Action> actions = new ArrayList<Action>();
-		
-		for (String e : acts)
-		{
-			System.out.println(e);
-		}
 		
 		for (int i = 0; i < acts.length; i++)
 		{
@@ -365,7 +372,6 @@ public class Game
 			else if (acts[i].replaceAll("\\s+", "").equals("end"))
 			{
 				actions.add(new Action("end", new String[] {}));
-				System.out.println("adding end");
 			}
 		}
 		
@@ -388,11 +394,11 @@ public class Game
 		}
 		
 		if (isLeftTurn)
-			message += "\nMana: " + left.getMana();
+			message += "\n\nMana: " + left.getMana() + "\nHealth: " + left.getHealth();
 		else
-			message += "\nMana: " + right.getMana();
+			message += "\n\nMana: " + right.getMana() + "\nHealth: " + right.getHealth();;
 		
-		message += "\nYour side of the board: ";
+		message += "\n\nYour side of the board: ";
 		ArrayList<Card> yourCards = null;
 		if (isLeftTurn)
 			yourCards = Board.getCards(left);
@@ -403,7 +409,7 @@ public class Game
 			message += e.getCardInfo() + ", ";
 		}
 		
-		message += "\nTheir side of the board: ";
+		message += "\n\nTheir side of the board: ";
 		ArrayList<Card> otherCards = null;
 		if (isLeftTurn)
 			otherCards = Board.getCards(right);
@@ -414,6 +420,42 @@ public class Game
 			message += e.getCardInfo() + ", ";
 		}
 		
+		message += "\n\nTo play your turn, send an email to the arbitrator with the subject: ";
+		if (isLeftTurn)
+			message += "leftactions.";
+		else
+			message += "rightactions.";
+		message += "\nIn the message body, use any of the desired space-delimited commands: "
+				+  "\n\nplaycard [cardname]"
+				+  "\nhurt [originCharacter] [targetCharacter]"
+				+  "\nheropower [target]"
+				+  "\nend";
+		
 		return message;
+	}
+	
+	private void onRegister(String leftEmail, String rightEmail)
+	{
+		if (!alreadyRegistered)
+		{
+			System.out.println("On registered");
+			
+			alreadyRegistered = true;
+			
+			String leftMessage = "You have been registered for a game of Dotarthstone."
+							   + "\n\nSince you are registered for the";
+			String rightMessage = new String(leftMessage);
+			
+			leftMessage  += " left side of the board, you must send an email back with"
+					      + " the subject line \"lefthero\".";
+			rightMessage += " right side of the board, you must send an email back with"
+				      	  + " the subject line \"righthero\"."; 
+			
+			leftMessage  += "\n\nThe valid hero choices are: witchdoctor, cleric, warrior.";
+			rightMessage += "\n\nThe valid hero choices are: witchdoctor, cleric, warrior.";
+			
+			sendEmail(leftEmail, "Dotarthstone - Join a registered game", leftMessage);
+			sendEmail(rightEmail, "Dotarthstone - Join a registered game", rightMessage);
+		}
 	}
 }

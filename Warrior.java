@@ -8,7 +8,7 @@ public class Warrior extends Hero
 
     public Warrior(boolean leftSide)
     {
-        super("Warrior", leftSide);
+        super("warrior", leftSide);
         constructDeck();
     }
 
